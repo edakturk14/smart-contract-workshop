@@ -47,7 +47,13 @@ contract StakingContract {
         uint256 randomIndex = uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty, msg.sender))) % stakers.length;
         winner = stakers[randomIndex];
         winnerHasWithdrawn = false;
-        emit WinnerSelected(winner, address(this).balance);
+        
+        uint256 prize = totalStaked; // Set the prize to the total staked amount
+        totalStaked = 0; // Deduct the total staked amount from the contract balance
+
+        payable(winner).transfer(prize); // Transfer the total staked amount to the winner
+
+        emit WinnerSelected(winner, prize);
     }
 
     function getStakerCount() external view returns (uint256) {
@@ -56,18 +62,5 @@ contract StakingContract {
 
     function readWinner() external view returns (address) {
         return winner;
-    }
-
-    function withdrawPrize() external {
-        require(msg.sender == winner, "Only the winner can withdraw the prize.");
-        require(!winnerHasWithdrawn, "Prize has already been withdrawn.");
-        require(!stakingOpen, "Staking is still open.");
-        winnerHasWithdrawn = true;
-        
-        uint256 prize = address(this).balance;
-        totalStaked -= stakedAmount[msg.sender]; // Deduct the winner's stake
-        stakedAmount[msg.sender] = 0; // Reset the winner's stake to zero
-        
-        payable(winner).transfer(prize);
     }
 }
