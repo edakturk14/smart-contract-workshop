@@ -11,7 +11,6 @@ contract StakingContract {
     bool public stakingOpen = true;
 
     mapping(address => uint256) public stakedAmount;
-    bool public winnerHasWithdrawn;
 
     event Staked(address indexed staker, uint256 amount);
     event Withdrawn(address indexed staker, uint256 amount);
@@ -46,7 +45,6 @@ contract StakingContract {
 
         uint256 randomIndex = uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty, msg.sender))) % stakers.length;
         winner = stakers[randomIndex];
-        winnerHasWithdrawn = false;
         
         uint256 prize = totalStaked; // Set the prize to the total staked amount
         totalStaked = 0; // Deduct the total staked amount from the contract balance
