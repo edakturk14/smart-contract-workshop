@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
-import "../node_modules/hardhat/console.sol";
-
 contract StakingContract {
     uint256 public totalStaked;
     uint256 public requiredStakeInEther; // The required stake in Wei
@@ -11,13 +9,14 @@ contract StakingContract {
     bool public stakingOpen = true;
 
     mapping(address => uint256) public stakedAmount;
+    bool public winnerHasWithdrawn;
 
     event Staked(address indexed staker, uint256 amount);
     event Withdrawn(address indexed staker, uint256 amount);
     event WinnerSelected(address indexed winner, uint256 prize);
 
-    constructor(uint256 _requiredStakeInEther) {
-        requiredStakeInEther = 0.1 ether;
+    constructor() {
+        requiredStakeInEther = 0.00001 ether;
     }
 
     function stake() external payable {
@@ -45,6 +44,7 @@ contract StakingContract {
 
         uint256 randomIndex = uint256(keccak256(abi.encodePacked(block.timestamp, block.difficulty, msg.sender))) % stakers.length;
         winner = stakers[randomIndex];
+        winnerHasWithdrawn = false;
         
         uint256 prize = totalStaked; // Set the prize to the total staked amount
         totalStaked = 0; // Deduct the total staked amount from the contract balance
