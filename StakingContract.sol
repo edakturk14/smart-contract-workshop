@@ -63,6 +63,11 @@ contract StakingContract {
         require(!winnerHasWithdrawn, "Prize has already been withdrawn.");
         require(!stakingOpen, "Staking is still open.");
         winnerHasWithdrawn = true;
-        payable(winner).transfer(address(this).balance);
+        
+        uint256 prize = address(this).balance;
+        totalStaked -= stakedAmount[msg.sender]; // Deduct the winner's stake
+        stakedAmount[msg.sender] = 0; // Reset the winner's stake to zero
+        
+        payable(winner).transfer(prize);
     }
 }
